@@ -1,0 +1,53 @@
+﻿@model IEnumerable<PiHomeAutomation.Models.HTSensor>
+
+@{
+    ViewBag.Title = "Graph";
+    bool isFirst = true;
+}
+
+<head>
+    <title>@ViewBag.Title</title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    google.load("visualization", "1", { packages: ["corechart"] });
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Date', 'Humidity', 'Temperature'],
+@if (Model.Count() == 0)
+{
+    @:['@DateTime.Now', 0, 0]
+}
+@foreach(var item in Model)
+{
+    if (isFirst){
+        isFirst = false;
+    }
+    else{
+        @:,
+    }
+    @:['@item.CreatedOn', @item.Humidity, @item.Temperature]
+}
+        ]);
+
+        var options = {
+            @if (Model.Count() == 0)
+{
+            @:title: 'No Data for @ViewBag.SensorName',
+            }
+else
+{
+            @:title: '@ViewBag.SensorName',
+            }
+            hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
+            vAxis: { maxValue: 80, minValue: 10}
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+    }
+</script>
+</head>
+<body>
+    <div id="chart_div" style="min-height:480px" class="table-bordered"></div>
+</body>
