@@ -33,7 +33,7 @@ namespace PiHomeAutomation.Controllers
                 if(dateAgo == null)
                 {
                     DateTime oneMonthAgo = DateTime.Now.AddDays(-30);
-                    return View(db.HTSensors.Where(m => m.SensorName == sensorName).ToList());
+                    return View(db.HTSensors.Where(m => m.SensorName == sensorName && m.CreatedOn >= oneMonthAgo).ToList());
                 }
                 else
                 {

@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    bool isFirst = true;
+}
+
+<head>
+    <title>@ViewBag.Title</title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    function parseKoreanDate(dateString){
+        var token = dateString.split(' ');
+        var lDate = token[0];
+        var lAmPm = token[1];
+        var lTime = token[2];
+        var dateToken = lDate.split('-');
+        var timeToken = lTime.split(':');
+        var lYear = parseInt(dateToken[0]);
+        var lMonth = parseInt(dateToken[1]);
+        var lDay = parseInt(dateToken[2]);
+        var lHour = parseInt(timeToken[0]);
+        var lMinute = parseInt(timeToken[1]);
+        var lSecond = parseInt(timeToken[2]);
+        if(lAmPm == "오후"){
+            lHour += 12;
+        }
+        return new Date(lYear, lMonth, lDay, lHour, lMinute, lSecond);
+    }
+    function convertToJSDate(aspnetDate){
+        thenum = aspnetDate.match(/\d+/)[0];
+        var d = new Date();
+        d.setTime(thenum);
+        return d;
+    }
+        //var graphTempItems = [];
+        //graphTempItems.push(['Date', 'Temperature', 'Forecast Temp']);
+        //var graphHumiItems = [];
+        //graphHumiItems.push(['Date', 'Humidity', 'Forecast Humi']);
+        //var iSensor = 0;
+        //var iForecast = 0;
+        //while (iSensor < htSensors.length && iForecast < htForecasts.length){
+        //    var htSensor = htSensors[iSensor];
+        //    var htForecast = htForecasts[iForecast];
+        //    //graphTempItems
+        //    var sensorTime = convertToJSDate(htSensor.CreatedOn);
+        //    var forecastTime = convertToJSDate(htForecast.ForecastDate);
+        //    if(sensorTime.getTime() > forecastTime.getTime()){
+        //        graphTempItems.push([sensorTime, htSensor.Temperature, null]);
+        //        graphHumiItems.push([sensorTime, htSensor.Humidity, null]);
+        //        iSensor++;
+        //    }else{
+        //        graphTempItems.push([htForecast, null, htForecast.Temperature]);
+        //        graphHumiItems.push([sensorTime, null, htSensor.Humidity]);
+        //        iForecast++;
+        //    }
+        //}
+    var gTitle = '@ViewBag.SensorName';
+    google.load("visualization", "1", { packages: ["corechart", "timeline"] });
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var htSensors = @Html.Raw(Json.Encode(ViewData["HTSensors"]));
+        var htForecasts = @Html.Raw(Json.Encode(ViewData["HTForecasts"]));
+        var dataSensorTemp = new google.visualization.DataTable();
+        if(htSensors.length == 0 && htForecasts.length == 0){
+            gTitle = 'No data for ' + gTitle;
+        }
+        dataSensorTemp.addColumn('date', 'Date');
+        dataSensorTemp.addColumn('number', 'Sensor Temp.');
+        for(var i = 0 ; i < htSensors.length ; i++){
+            var htSensor = htSensors[i];
+            var sensorTime = convertToJSDate(htSensor.CreatedOn);
+            dataSensorTemp.addRow([sensorTime, htSensor.Temperature]);
+        }
+        var dataForecastTemp = new google.visualization.DataTable();
+        dataForecastTemp.addColumn('date', 'Date');
+        dataForecastTemp.addColumn('number', 'Forecast Temp.');
+        for(var i = 0 ; i < htForecasts.length ; i++){
+            var htForecast = htForecasts[i];
+            var forecastTime = convertToJSDate(htForecast.ForecastDate);
+            dataForecastTemp.addRow([forecastTime, htForecast.Temperature]);
+        }
+        //var dataTemp = new google.visualization.arrayToDataTable(graphTempItems);
+        var joinedData = google.visualization.data.join(dataSensorTemp, dataForecastTemp, 'full', [[0, 0]], [1], [1]);
+    
+        var options = {
+            title: gTitle,
+            interpolateNulls: true,
+            hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
+            vAxis: { maxValue: 45, minValue: 10}
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(joinedData, options);
+    }
+    </script>
+</head>
+<body>
+    <div id="chart_div" style="min-height:480px" class="table-bordered"></div>
+</body>

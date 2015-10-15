@@ -17,10 +17,30 @@ namespace PiHomeAutomation.Controllers
         private HTSensorDbContext db = new HTSensorDbContext();
 
         // GET: api/HTSensorsApi
+        /// <summary>
+        /// Get Humidity and Temperature Sensor Data up to 30 days.
+        /// </summary>
         public IQueryable<HTSensor> GetHTSensors()
         {
-            return db.HTSensors;
+            DateTime oneMonthAgo = DateTime.Now.AddDays(-30);
+            return db.HTSensors.Where(m => m.CreatedOn >= oneMonthAgo);
         }
+        /// <summary>
+        /// Get All Humidity and Temperature Sensor Data. It might take long time to get all data
+        /// </summary>
+        /// <param name="SensorName">Sensor Name.</param>
+        [HttpGet]
+        [Route(@"api/HTSensorsList/{SensorName}/All")]
+        public IQueryable<HTSensor> HTSensorsAll(string SensorName)
+        {
+            return db.HTSensors.Where(m => m.SensorName == SensorName);
+        }
+        /// <summary>
+        /// Get Humidity and Temperature Sensor Data for the given date range.
+        /// </summary>
+        /// <param name="SensorName">Sensor Name.</param>
+        /// <param name="CreatedFrom">From.</param>
+        /// <param name="CreatedTo">To.</param>
         [HttpGet]
         [Route(@"api/HTSensorsList/{SensorName}/{CreatedFrom:regex(^\d{4}-\d{2}-\d{2})}/{CreatedTo:regex(^\d{4}-\d{2}-\d{2})}")]
         public IQueryable<HTSensor> HTSensorsList(string SensorName, DateTime CreatedFrom, DateTime CreatedTo)
