@@ -59,40 +59,61 @@
     function drawChart() {
         var htSensors = @Html.Raw(Json.Encode(ViewData["HTSensors"]));
         var htForecasts = @Html.Raw(Json.Encode(ViewData["HTForecasts"]));
-        var dataSensorTemp = new google.visualization.DataTable();
         if(htSensors.length == 0 && htForecasts.length == 0){
             gTitle = 'No data for ' + gTitle;
         }
+        var dataSensorTemp = new google.visualization.DataTable();
+        var dataSensorHumi = new google.visualization.DataTable();
         dataSensorTemp.addColumn('date', 'Date');
-        dataSensorTemp.addColumn('number', 'Sensor Temp.');
+        dataSensorTemp.addColumn('number', 'Sensor');
+        dataSensorHumi.addColumn('date', 'Date');
+        dataSensorHumi.addColumn('number', 'Sensor');
         for(var i = 0 ; i < htSensors.length ; i++){
             var htSensor = htSensors[i];
             var sensorTime = convertToJSDate(htSensor.CreatedOn);
             dataSensorTemp.addRow([sensorTime, htSensor.Temperature]);
+            dataSensorHumi.addRow([sensorTime, htSensor.Humidity]);
         }
         var dataForecastTemp = new google.visualization.DataTable();
+        var dataForecastHumi = new google.visualization.DataTable();
         dataForecastTemp.addColumn('date', 'Date');
-        dataForecastTemp.addColumn('number', 'Forecast Temp.');
+        dataForecastTemp.addColumn('number', 'Forecast');
+        dataForecastHumi.addColumn('date', 'Date');
+        dataForecastHumi.addColumn('number', 'Forecast');
         for(var i = 0 ; i < htForecasts.length ; i++){
             var htForecast = htForecasts[i];
             var forecastTime = convertToJSDate(htForecast.ForecastDate);
             dataForecastTemp.addRow([forecastTime, htForecast.Temperature]);
+            dataForecastHumi.addRow([forecastTime, htForecast.Humidity]);
         }
         //var dataTemp = new google.visualization.arrayToDataTable(graphTempItems);
-        var joinedData = google.visualization.data.join(dataSensorTemp, dataForecastTemp, 'full', [[0, 0]], [1], [1]);
+        var joinedTemp = google.visualization.data.join(dataSensorTemp, dataForecastTemp, 'full', [[0, 0]], [1], [1]);
     
-        var options = {
+        var optionsT = {
             title: gTitle,
             interpolateNulls: true,
             hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
             vAxis: { maxValue: 45, minValue: 10}
         };
 
-        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-        chart.draw(joinedData, options);
+        var chartTemp = new google.visualization.AreaChart(document.getElementById('chart_temp'));
+        chartTemp.draw(joinedTemp, optionsT);
+
+        var joinedHumi = google.visualization.data.join(dataSensorHumi, dataForecastHumi, 'full', [[0, 0]], [1], [1]);
+    
+        var optionsH = {
+            title: gTitle,
+            interpolateNulls: true,
+            hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
+            vAxis: { maxValue: 80, minValue: 15}
+        };
+
+        var chartHumi = new google.visualization.AreaChart(document.getElementById('chart_humi'));
+        chartHumi.draw(joinedHumi, optionsH);
     }
     </script>
 </head>
 <body>
-    <div id="chart_div" style="min-height:480px" class="table-bordered"></div>
+    <div id="chart_temp" style="min-height:480px" class="table-bordered"></div>
+    <div id="chart_humi" style="min-height:480px" class="table-bordered"></div>
 </body>
