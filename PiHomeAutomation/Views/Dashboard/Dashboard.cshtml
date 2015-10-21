@@ -53,8 +53,9 @@
         //        iForecast++;
         //    }
         //}
-    var gTitle = '@ViewBag.SensorName';
-    google.load("visualization", "1", { packages: ["corechart", "timeline"] });
+    var gTitleT = "@ViewBag.SensorName's Temperature";
+    var gTitleH = "@ViewBag.SensorName's Humidity";
+        google.load("visualization", "1", { packages: ["corechart", "timeline"] });
     google.setOnLoadCallback(drawChart);
     function drawChart() {
         var htSensors = @Html.Raw(Json.Encode(ViewData["HTSensors"]));
@@ -64,9 +65,9 @@
         }
         var dataSensorTemp = new google.visualization.DataTable();
         var dataSensorHumi = new google.visualization.DataTable();
-        dataSensorTemp.addColumn('date', 'Date');
+        dataSensorTemp.addColumn('datetime', 'Date');
         dataSensorTemp.addColumn('number', 'Sensor');
-        dataSensorHumi.addColumn('date', 'Date');
+        dataSensorHumi.addColumn('datetime', 'Date');
         dataSensorHumi.addColumn('number', 'Sensor');
         for(var i = 0 ; i < htSensors.length ; i++){
             var htSensor = htSensors[i];
@@ -76,9 +77,9 @@
         }
         var dataForecastTemp = new google.visualization.DataTable();
         var dataForecastHumi = new google.visualization.DataTable();
-        dataForecastTemp.addColumn('date', 'Date');
+        dataForecastTemp.addColumn('datetime', 'Date');
         dataForecastTemp.addColumn('number', 'Forecast');
-        dataForecastHumi.addColumn('date', 'Date');
+        dataForecastHumi.addColumn('datetime', 'Date');
         dataForecastHumi.addColumn('number', 'Forecast');
         for(var i = 0 ; i < htForecasts.length ; i++){
             var htForecast = htForecasts[i];
@@ -90,10 +91,17 @@
         var joinedTemp = google.visualization.data.join(dataSensorTemp, dataForecastTemp, 'full', [[0, 0]], [1], [1]);
     
         var optionsT = {
-            title: gTitle,
+            title: gTitleT,
             interpolateNulls: true,
+            colors: ['#EF5350', '#CDDC39'],
             hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
-            vAxis: { maxValue: 45, minValue: 10}
+            vAxis: {
+                viewWindow: {
+                    min: -10,
+                    max: 45
+                },
+                maxValue: 45, minValue: 10
+            }
         };
 
         var chartTemp = new google.visualization.AreaChart(document.getElementById('chart_temp'));
@@ -102,10 +110,17 @@
         var joinedHumi = google.visualization.data.join(dataSensorHumi, dataForecastHumi, 'full', [[0, 0]], [1], [1]);
     
         var optionsH = {
-            title: gTitle,
+            title: gTitleH,
             interpolateNulls: true,
+            colors: ['#1565C0', '#B39DDB'],
             hAxis: { title: 'Timestamp', titleTextStyle: { color: '#333' } },
-            vAxis: { maxValue: 80, minValue: 15}
+            vAxis: {
+                viewWindow: {
+                    min: 15,
+                    max: 80
+                },
+                maxValue: 80, minValue: 15
+            }
         };
 
         var chartHumi = new google.visualization.AreaChart(document.getElementById('chart_humi'));
@@ -114,6 +129,10 @@
     </script>
 </head>
 <body>
+    @Html.ActionLink("1 Day", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 1 }, new { @class = "btn btn-default" })
+    @Html.ActionLink("2 Days", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 2 }, new { @class = "btn btn-default" })
+    @Html.ActionLink("1 Week", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 7 }, new { @class = "btn btn-default" })
+    @Html.ActionLink("1 Month", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 30 }, new { @class = "btn btn-default" })
     <div id="chart_temp" style="min-height:480px" class="table-bordered"></div>
     <div id="chart_humi" style="min-height:480px" class="table-bordered"></div>
 </body>

@@ -17,7 +17,7 @@ namespace PiHomeAutomation.Controllers
             string zipcode = "66204";
             if (sensorName == null)
             {
-                DateTime oneMonthAgo = DateTime.Now.AddDays(-14);
+                DateTime oneMonthAgo = DateTime.Now.AddDays(-10);
                 ViewData["HTSensors"] = htSensorDb.HTSensors.Where(m => m.CreatedOn >= oneMonthAgo).ToList();
                 ViewData["HTForecasts"] = htForecastDb.HTForecasts.Where(m => m.Zipcode == zipcode && m.ForecastDate >= oneMonthAgo).ToList();
                 return View();
@@ -27,7 +27,7 @@ namespace PiHomeAutomation.Controllers
                 ViewBag.SensorName = sensorName;
                 if (dateAgo == null)
                 {
-                    DateTime oneMonthAgo = DateTime.Now.AddDays(-14);
+                    DateTime oneMonthAgo = DateTime.Now.AddDays(-10);
                     ViewData["HTSensors"] = htSensorDb.HTSensors.Where(m => m.SensorName == sensorName && m.CreatedOn >= oneMonthAgo).ToList();
                     ViewData["HTForecasts"] = htForecastDb.HTForecasts.Where(m => m.Zipcode == zipcode && m.ForecastDate >= oneMonthAgo).ToList();
                     return View();

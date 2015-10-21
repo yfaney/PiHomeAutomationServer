@@ -12,6 +12,9 @@ using PiHomeAutomation.Models;
 
 namespace PiHomeAutomation.Controllers
 {
+    /// <summary>
+    /// HTSensor data Web API
+    /// </summary>
     public class HTSensorsApiController : ApiController
     {
         private HTSensorDbContext db = new HTSensorDbContext();
@@ -20,6 +23,9 @@ namespace PiHomeAutomation.Controllers
         /// <summary>
         /// Get Humidity and Temperature Sensor Data up to 30 days.
         /// </summary>
+        /// <returns>
+        /// All sensor data from 30 days ago to current
+        /// </returns>
         public IQueryable<HTSensor> GetHTSensors()
         {
             DateTime oneMonthAgo = DateTime.Now.AddDays(-30);
@@ -59,6 +65,9 @@ namespace PiHomeAutomation.Controllers
             }
         }
 
+        ///<summary>
+        ///Get a single data corresponding ID
+        ///</summary>
         // GET: api/HTSensorsApi/5
         [ResponseType(typeof(HTSensor))]
         public IHttpActionResult GetHTSensor(string id)
@@ -72,6 +81,10 @@ namespace PiHomeAutomation.Controllers
             return Ok(hTSensor);
         }
 
+        ///<summary>Put the HT sensor data</summary>
+        ///<param name="hTSensor">The sensor's data(SensorName, Temp, Humi, Msg)</param>
+        ///<param name="id">The sensor ID</param>
+        ///<returns>200 Ok, others otherwise</returns>
         // PUT: api/HTSensorsApi/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutHTSensor(string id, HTSensor hTSensor)
@@ -107,6 +120,8 @@ namespace PiHomeAutomation.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        ///<summary>Post the HT sensor data(Sensor name, Temp, Humi, Msg)</summary>
+        ///<returns>The sensor data posted</returns>
         // POST: api/HTSensorsApi
         [ResponseType(typeof(HTSensor))]
         public IHttpActionResult PostHTSensor(HTSensor hTSensor)
@@ -137,6 +152,9 @@ namespace PiHomeAutomation.Controllers
             return CreatedAtRoute("DefaultApi", new { id = hTSensor.SensorName }, hTSensor);
         }
 
+        ///<summary>Deletes the corresponding HT Sensor data</summary>
+        ///<param name="id">The sensor's ID</param>
+        ///<returns>200 Ok, 404 Not found, others otherwise</returns>
         // DELETE: api/HTSensorsApi/5
         [ResponseType(typeof(HTSensor))]
         public IHttpActionResult DeleteHTSensor(string id)

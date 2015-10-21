@@ -9,8 +9,14 @@ using System.Web.Routing;
 
 namespace PiHomeAutomation
 {
+    /// <summary>
+    /// IoT Project Application's Web API
+    /// </summary>
     public class MvcApplication : System.Web.HttpApplication
     {
+        /// <summary>
+        /// Starts
+        /// </summary>
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();

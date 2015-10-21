@@ -13,6 +13,9 @@ using System.Web.Script.Serialization;
 
 namespace PiHomeAutomation.Controllers
 {
+    /// <summary>
+    /// HT Forecast API
+    /// </summary>
     public class HTForecastsApiController : ApiController
     {
         private HTForecastDbContext db = new HTForecastDbContext();
@@ -23,6 +26,9 @@ namespace PiHomeAutomation.Controllers
             return db.HTForecasts;
         }
 
+        ///<summary>
+        ///Get the forecast data
+        ///</summary>
         // GET: api/HTForecasts/5
         [ResponseType(typeof(HTForecast))]
         public IHttpActionResult GetHTForecast(string id)
@@ -36,6 +42,7 @@ namespace PiHomeAutomation.Controllers
             return Ok(hTForecast);
         }
 
+        ///<summary>Put HT Forecast data</summary>
         // PUT: api/HTForecasts/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutHTForecast(string id, HTForecast hTForecast)
@@ -71,6 +78,7 @@ namespace PiHomeAutomation.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        ///<summary>Post the HTSensor data</summary>
         // POST: api/HTForecasts
         [ResponseType(typeof(HTForecast))]
         public IHttpActionResult PostHTForecast(HTForecast hTForecast)
@@ -101,6 +109,12 @@ namespace PiHomeAutomation.Controllers
             return CreatedAtRoute("DefaultApi", new { id = hTForecast.Zipcode }, hTForecast);
         }
 
+        ///<summary>
+        ///Post the forecast data
+        ///</summary>
+        ///<param name="Zipcode">Zipcode of the area</param>
+        ///<param name="ForecastJson">Forecast data as Json format</param>
+        ///<example>"[{'epoch':EPOCH_TIME, 'temp':TEMPERATURE, 'humidity':HUMIDITY}]"</example>
         // POST: api/HTForecasts
         [Route(@"api/HTForecasts/{Zipcode}")]
         [ResponseType(typeof(HTForecast))]
@@ -144,6 +158,7 @@ namespace PiHomeAutomation.Controllers
             return Ok(result);
         }
 
+        ///<summary>Delete the corresponding forecast data</summary>
         // DELETE: api/HTForecasts/5
         [ResponseType(typeof(HTForecast))]
         public IHttpActionResult DeleteHTForecast(string id)
@@ -174,7 +189,7 @@ namespace PiHomeAutomation.Controllers
             return db.HTForecasts.Count(e => e.Zipcode == id) > 0;
         }
 
-        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
