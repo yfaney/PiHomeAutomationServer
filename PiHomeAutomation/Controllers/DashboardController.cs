@@ -1,4 +1,5 @@
-﻿using PiHomeAutomation.Models;
+﻿using PiHomeAutomation.Helper;
+using PiHomeAutomation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,19 +8,27 @@ using System.Web.Mvc;
 
 namespace PiHomeAutomation.Controllers
 {
+    /// <summary>
+    /// Dashboard controller : /Dashboard
+    /// </summary>
     public class DashboardController : Controller
     {
-        private HTSensorDbContext htSensorDb = new HTSensorDbContext();
-        private HTForecastDbContext htForecastDb = new HTForecastDbContext();
 
+        private RestApi api = new RestApi();
+        /// <summary>
+        /// Gives dashboard page
+        /// </summary>
+        /// <param name="sensorName">Sensor name (e.g. LivingRoom01)</param>
+        /// <param name="dateAgo">Number of dates ago to show</param>
+        /// <returns></returns>
         public ActionResult Dashboard(string sensorName, int? dateAgo)
         {
             string zipcode = "66204";
             if (sensorName == null)
             {
-                DateTime oneMonthAgo = DateTime.Now.AddDays(-10);
-                ViewData["HTSensors"] = htSensorDb.HTSensors.Where(m => m.CreatedOn >= oneMonthAgo).ToList();
-                ViewData["HTForecasts"] = htForecastDb.HTForecasts.Where(m => m.Zipcode == zipcode && m.ForecastDate >= oneMonthAgo).ToList();
+                DateTime oneMonthAgo = DateTime.Now.AddDays(-1);
+                ViewData["HTSensors"] = api.getHTSensors(oneMonthAgo, "LivingRoom01");
+                ViewData["HTForecasts"] = api.getHTForecast(oneMonthAgo, zipcode);
                 return View();
             }
             else
@@ -27,16 +36,16 @@ namespace PiHomeAutomation.Controllers
                 ViewBag.SensorName = sensorName;
                 if (dateAgo == null)
                 {
-                    DateTime oneMonthAgo = DateTime.Now.AddDays(-10);
-                    ViewData["HTSensors"] = htSensorDb.HTSensors.Where(m => m.SensorName == sensorName && m.CreatedOn >= oneMonthAgo).ToList();
-                    ViewData["HTForecasts"] = htForecastDb.HTForecasts.Where(m => m.Zipcode == zipcode && m.ForecastDate >= oneMonthAgo).ToList();
+                    DateTime oneMonthAgo = DateTime.Now.AddDays(-1);
+                    ViewData["HTSensors"] = api.getHTSensors(oneMonthAgo, sensorName);
+                    ViewData["HTForecasts"] = api.getHTForecast(oneMonthAgo, zipcode);
                     return View();
                 }
                 else
                 {
                     DateTime ago = DateTime.Now.AddDays(-(int)dateAgo);
-                    ViewData["HTSensors"] = htSensorDb.HTSensors.Where(m => m.CreatedOn >= ago).ToList();
-                    ViewData["HTForecasts"] = htForecastDb.HTForecasts.Where(m => m.Zipcode == zipcode && m.ForecastDate >= ago).ToList();
+                    ViewData["HTSensors"] = api.getHTSensors(ago, sensorName);
+                    ViewData["HTForecasts"] = api.getHTForecast(ago, zipcode);
                     return View();
                 }
             }

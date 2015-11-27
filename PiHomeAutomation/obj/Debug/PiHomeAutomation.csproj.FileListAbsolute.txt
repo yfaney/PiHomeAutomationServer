@@ -131,3 +131,5 @@ C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAuto
 C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAutomation\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
 C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAutomation\obj\Debug\PiHomeAutomation.pdb
 C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAutomation\bin\XmlDocument.xml
+C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAutomation\bin\MongoDB.Driver.Legacy.dll
+C:\Users\frigh\Documents\Visual Studio 2013\Projects\PiHomeAutomation\PiHomeAutomation\bin\MongoDB.Driver.Legacy.xml

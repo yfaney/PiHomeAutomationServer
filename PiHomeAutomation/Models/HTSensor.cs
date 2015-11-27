@@ -8,6 +8,9 @@ using System.Web;
 
 namespace PiHomeAutomation.Models
 {
+    /// <summary>
+    /// ASP.Net MVC5 Entity Object
+    /// </summary>
     public class HTSensor
     {
         [Key][Column(Order = 0)]

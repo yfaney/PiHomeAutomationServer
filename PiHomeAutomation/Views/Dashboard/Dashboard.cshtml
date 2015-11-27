@@ -1,12 +1,34 @@
 ﻿@{
     ViewBag.Title = "Dashboard";
-    bool isFirst = true;
+    //bool isFirst = true;
 }
 
 <head>
     <title>@ViewBag.Title</title>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi?language=en"></script>
     <script type="text/javascript">
+
+    function jsonLastSensorDataRequest() {
+        return $.ajax({
+            url: "/PiHomeAutomation/api/HTSensorsList/@ViewBag.SensorName/Last",
+            xhrfields: {
+                'withCredentials': true
+            },
+            dataType: 'json'
+        });
+    }
+    function runEvery1Min() {
+        $.when(jsonLastSensorDataRequest()).done(function (resp) {
+            result = eval(resp)[0];
+            var lDate = epoch_to_date(result.tstamp.$date);
+            var lDateTimeStr = lDate.toDateString() + " " + lDate.toTimeString();
+            var lTemp = Math.round(result.temperature * 100) / 100;
+            var lHumi = Math.round(result.humidity * 100) / 100;
+            $('#curr_ht').html("<h3>As of " + lDateTimeStr + "</h3><h2>Temp: " + lTemp + "&#8451; Humidity: " + lHumi + "%</h2>");
+            setTimeout(runEvery1Min(), 60 * 1000);
+        });
+    }
+
     function parseKoreanDate(dateString){
         var token = dateString.split(' ');
         var lDate = token[0];
@@ -25,41 +47,46 @@
         }
         return new Date(lYear, lMonth, lDay, lHour, lMinute, lSecond);
     }
-    function convertToJSDate(aspnetDate){
-        thenum = aspnetDate.match(/\d+/)[0];
+    //function convertToJSDate(aspnetDate){
+    //    var thenum = aspnetDate.match(/\d+/)[0];
+    //    var d = new Date();
+    //    d.setTime(thenum);
+    //    return d;
+    //}
+    function epoch_to_date(epoch) {
         var d = new Date();
-        d.setTime(thenum);
+        d.setTime(epoch)
         return d;
     }
-        //var graphTempItems = [];
-        //graphTempItems.push(['Date', 'Temperature', 'Forecast Temp']);
-        //var graphHumiItems = [];
-        //graphHumiItems.push(['Date', 'Humidity', 'Forecast Humi']);
-        //var iSensor = 0;
-        //var iForecast = 0;
-        //while (iSensor < htSensors.length && iForecast < htForecasts.length){
-        //    var htSensor = htSensors[iSensor];
-        //    var htForecast = htForecasts[iForecast];
-        //    //graphTempItems
-        //    var sensorTime = convertToJSDate(htSensor.CreatedOn);
-        //    var forecastTime = convertToJSDate(htForecast.ForecastDate);
-        //    if(sensorTime.getTime() > forecastTime.getTime()){
-        //        graphTempItems.push([sensorTime, htSensor.Temperature, null]);
-        //        graphHumiItems.push([sensorTime, htSensor.Humidity, null]);
-        //        iSensor++;
-        //    }else{
-        //        graphTempItems.push([htForecast, null, htForecast.Temperature]);
-        //        graphHumiItems.push([sensorTime, null, htSensor.Humidity]);
-        //        iForecast++;
-        //    }
-        //}
+    var graphTempItems = [];
+    //graphTempItems.push(['Date', 'Temperature', 'Forecast Temp']);
+    //var graphHumiItems = [];
+    //graphHumiItems.push(['Date', 'Humidity', 'Forecast Humi']);
+    //var iSensor = 0;
+    //var iForecast = 0;
+    //while (iSensor < htSensors.length && iForecast < htForecasts.length){
+    //    var htSensor = htSensors[iSensor];
+    //    var htForecast = htForecasts[iForecast];
+    //    //graphTempItems
+    //    var sensorTime = convertToJSDate(htSensor.CreatedOn);
+    //    var forecastTime = convertToJSDate(htForecast.ForecastDate);
+    //    if(sensorTime.getTime() > forecastTime.getTime()){
+    //        graphTempItems.push([sensorTime, htSensor.Temperature, null]);
+    //        graphHumiItems.push([sensorTime, htSensor.Humidity, null]);
+    //        iSensor++;
+    //    }else{
+    //        graphTempItems.push([htForecast, null, htForecast.Temperature]);
+    //        graphHumiItems.push([sensorTime, null, htSensor.Humidity]);
+    //        iForecast++;
+    //    }
+    //}
     var gTitleT = "@ViewBag.SensorName's Temperature";
     var gTitleH = "@ViewBag.SensorName's Humidity";
-        google.load("visualization", "1", { packages: ["corechart", "timeline"] });
+    google.load("visualization", "1", { packages: ["corechart", "timeline"] });
     google.setOnLoadCallback(drawChart);
     function drawChart() {
-        var htSensors = @Html.Raw(Json.Encode(ViewData["HTSensors"]));
-        var htForecasts = @Html.Raw(Json.Encode(ViewData["HTForecasts"]));
+        var htSensors = eval(@Html.Raw(Json.Encode(ViewData["HTSensors"])));
+        var htForecasts = eval(@Html.Raw(Json.Encode(ViewData["HTForecasts"])));
         if(htSensors.length == 0 && htForecasts.length == 0){
             gTitle = 'No data for ' + gTitle;
         }
@@ -71,9 +98,9 @@
         dataSensorHumi.addColumn('number', 'Sensor');
         for(var i = 0 ; i < htSensors.length ; i++){
             var htSensor = htSensors[i];
-            var sensorTime = convertToJSDate(htSensor.CreatedOn);
-            dataSensorTemp.addRow([sensorTime, htSensor.Temperature]);
-            dataSensorHumi.addRow([sensorTime, htSensor.Humidity]);
+            var sensorTime = epoch_to_date(htSensor.tstamp.$date);
+            dataSensorTemp.addRow([sensorTime, htSensor.temperature]);
+            dataSensorHumi.addRow([sensorTime, htSensor.humidity]);
         }
         var dataForecastTemp = new google.visualization.DataTable();
         var dataForecastHumi = new google.visualization.DataTable();
@@ -83,9 +110,9 @@
         dataForecastHumi.addColumn('number', 'Forecast');
         for(var i = 0 ; i < htForecasts.length ; i++){
             var htForecast = htForecasts[i];
-            var forecastTime = convertToJSDate(htForecast.ForecastDate);
-            dataForecastTemp.addRow([forecastTime, htForecast.Temperature]);
-            dataForecastHumi.addRow([forecastTime, htForecast.Humidity]);
+            var forecastTime = epoch_to_date(htForecast.tstamp.$date);
+            dataForecastTemp.addRow([forecastTime, htForecast.temperature]);
+            dataForecastHumi.addRow([forecastTime, htForecast.humidity]);
         }
         //var dataTemp = new google.visualization.arrayToDataTable(graphTempItems);
         var joinedTemp = google.visualization.data.join(dataSensorTemp, dataForecastTemp, 'full', [[0, 0]], [1], [1]);
@@ -126,6 +153,7 @@
         var chartHumi = new google.visualization.AreaChart(document.getElementById('chart_humi'));
         chartHumi.draw(joinedHumi, optionsH);
     }
+    runEvery1Min();
     </script>
 </head>
 <body>
@@ -133,6 +161,7 @@
     @Html.ActionLink("2 Days", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 2 }, new { @class = "btn btn-default" })
     @Html.ActionLink("1 Week", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 7 }, new { @class = "btn btn-default" })
     @Html.ActionLink("1 Month", "Dashboard", "Dashboard", new { sensorName = "LivingRoom01", dateAgo = 30 }, new { @class = "btn btn-default" })
+    <div id="curr_ht" style="min-height:140px" class="table-bordered"></div>
     <div id="chart_temp" style="min-height:480px" class="table-bordered"></div>
     <div id="chart_humi" style="min-height:480px" class="table-bordered"></div>
 </body>

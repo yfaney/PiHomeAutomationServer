@@ -4,6 +4,28 @@
         <name>PiHomeAutomation</name>
     </assembly>
     <members>
+        <member name="T:PiHomeAutomation.BundleConfig">
+            <summary>
+            Bundle Config class
+            </summary>
+        </member>
+        <member name="M:PiHomeAutomation.BundleConfig.RegisterBundles(System.Web.Optimization.BundleCollection)">
+            <summary>
+            For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
+            </summary>
+            <param name="bundles"></param>
+        </member>
+        <member name="T:PiHomeAutomation.FilterConfig">
+            <summary>
+            FilterConfig class
+            </summary>
+        </member>
+        <member name="M:PiHomeAutomation.FilterConfig.RegisterGlobalFilters(System.Web.Mvc.GlobalFilterCollection)">
+            <summary>
+            Register global filters
+            </summary>
+            <param name="filters"></param>
+        </member>
         <member name="M:PiHomeAutomation.Areas.HelpPage.ApiDescriptionExtensions.GetFriendlyId(System.Web.Http.Description.ApiDescription)">
             <summary>
             Generates an URI-friendly ID for the <see cref="T:System.Web.Http.Description.ApiDescription"/>. E.g. "Get-Values-id_name" instead of "GetValues/{id}?name={name}"
@@ -254,6 +276,31 @@
             Initializes a new instance of the <see cref="T:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator"/> class.
             </summary>
         </member>
+        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.ActualHttpMessageTypes">
+            <summary>
+            Gets CLR types that are used as the content of <see cref="T:System.Net.Http.HttpRequestMessage"/> or <see cref="T:System.Net.Http.HttpResponseMessage"/>.
+            </summary>
+        </member>
+        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.ActionSamples">
+            <summary>
+            Gets the objects that are used directly as samples for certain actions.
+            </summary>
+        </member>
+        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.SampleObjects">
+            <summary>
+            Gets the objects that are serialized as samples by the supported formatters.
+            </summary>
+        </member>
+        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.SampleObjectFactories">
+            <summary>
+            Gets factories for the objects that the supported formatters will serialize as samples. Processed in order,
+            stopping when the factory successfully returns a non-<see langref="null"/> object.
+            </summary>
+            <remarks>
+            Collection includes just <see cref="M:PiHomeAutomation.Areas.HelpPage.ObjectGenerator.GenerateObject(System.Type)"/> initially. Use
+            <code>SampleObjectFactories.Insert(0, func)</code> to provide an override and
+            <code>SampleObjectFactories.Add(func)</code> to provide a fallback.</remarks>
+        </member>
         <member name="M:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.GetSampleRequests(System.Web.Http.Description.ApiDescription)">
             <summary>
             Gets the request body samples for a given <see cref="T:System.Web.Http.Description.ApiDescription"/>.
@@ -326,31 +373,6 @@
             <param name="type">The type.</param>
             <param name="mediaType">Type of the media.</param>
             <returns></returns>
-        </member>
-        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.ActualHttpMessageTypes">
-            <summary>
-            Gets CLR types that are used as the content of <see cref="T:System.Net.Http.HttpRequestMessage"/> or <see cref="T:System.Net.Http.HttpResponseMessage"/>.
-            </summary>
-        </member>
-        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.ActionSamples">
-            <summary>
-            Gets the objects that are used directly as samples for certain actions.
-            </summary>
-        </member>
-        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.SampleObjects">
-            <summary>
-            Gets the objects that are serialized as samples by the supported formatters.
-            </summary>
-        </member>
-        <member name="P:PiHomeAutomation.Areas.HelpPage.HelpPageSampleGenerator.SampleObjectFactories">
-            <summary>
-            Gets factories for the objects that the supported formatters will serialize as samples. Processed in order,
-            stopping when the factory successfully returns a non-<see langref="null"/> object.
-            </summary>
-            <remarks>
-            Collection includes just <see cref="M:PiHomeAutomation.Areas.HelpPage.ObjectGenerator.GenerateObject(System.Type)"/> initially. Use
-            <code>SampleObjectFactories.Insert(0, func)</code> to provide an override and
-            <code>SampleObjectFactories.Add(func)</code> to provide a fallback.</remarks>
         </member>
         <member name="T:PiHomeAutomation.Areas.HelpPage.HelpPageSampleKey">
             <summary>
@@ -481,6 +503,19 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
+        <member name="T:PiHomeAutomation.Controllers.DashboardController">
+            <summary>
+            Dashboard controller : /Dashboard
+            </summary>
+        </member>
+        <member name="M:PiHomeAutomation.Controllers.DashboardController.Dashboard(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Gives dashboard page
+            </summary>
+            <param name="sensorName">Sensor name (e.g. LivingRoom01)</param>
+            <param name="dateAgo">Number of dates ago to show</param>
+            <returns></returns>
+        </member>
         <member name="T:PiHomeAutomation.Controllers.HTForecastsApiController">
             <summary>
             HT Forecast API
@@ -535,25 +570,12 @@
             <param name="CreatedFrom">From.</param>
             <param name="CreatedTo">To.</param>
         </member>
-        <member name="M:PiHomeAutomation.Controllers.HTSensorsApiController.GetHTSensor(System.String)">
+        <member name="M:PiHomeAutomation.Controllers.HTSensorsApiController.HTSensorsLast(System.String)">
             <summary>
-            Get a single data corresponding ID
+            Get the lastest sensor data
             </summary>
-        </member>
-        <member name="M:PiHomeAutomation.Controllers.HTSensorsApiController.PutHTSensor(System.String,PiHomeAutomation.Models.HTSensor)">
-            <summary>Put the HT sensor data</summary>
-            <param name="hTSensor">The sensor's data(SensorName, Temp, Humi, Msg)</param>
-            <param name="id">The sensor ID</param>
-            <returns>200 Ok, others otherwise</returns>
-        </member>
-        <member name="M:PiHomeAutomation.Controllers.HTSensorsApiController.PostHTSensor(PiHomeAutomation.Models.HTSensor)">
-            <summary>Post the HT sensor data(Sensor name, Temp, Humi, Msg)</summary>
-            <returns>The sensor data posted</returns>
-        </member>
-        <member name="M:PiHomeAutomation.Controllers.HTSensorsApiController.DeleteHTSensor(System.String)">
-            <summary>Deletes the corresponding HT Sensor data</summary>
-            <param name="id">The sensor's ID</param>
-            <returns>200 Ok, 404 Not found, others otherwise</returns>
+            <param name="SensorName"></param>
+            <returns></returns>
         </member>
         <member name="T:PiHomeAutomation.MvcApplication">
             <summary>
@@ -563,6 +585,38 @@
         <member name="M:PiHomeAutomation.MvcApplication.Application_Start">
             <summary>
             Starts
+            </summary>
+        </member>
+        <member name="T:PiHomeAutomation.Helper.MongoApi">
+            <summary>
+            MongoDB API
+            </summary>
+        </member>
+        <member name="M:PiHomeAutomation.Helper.MongoApi.#ctor">
+            <summary>
+            Constructor: Connects to localhost:27017
+            </summary>
+        </member>
+        <member name="M:PiHomeAutomation.Helper.MongoApi.getHTSensors">
+            <summary>
+            Retrieves All HT Sensor data
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:PiHomeAutomation.Helper.RestApi.getHTSensors">
+            <summary>
+            Retrieves All HT Sensor data
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:PiHomeAutomation.Models.HTSensor">
+            <summary>
+            ASP.Net MVC5 Entity Object
+            </summary>
+        </member>
+        <member name="T:PiHomeAutomation.Models.MongoHTSensor">
+            <summary>
+            Mongo object for HTSensor
             </summary>
         </member>
     </members>

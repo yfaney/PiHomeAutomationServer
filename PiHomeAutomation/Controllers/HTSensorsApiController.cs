@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using PiHomeAutomation.Models;
+using PiHomeAutomation.Helper;
 
 namespace PiHomeAutomation.Controllers
 {
@@ -17,7 +18,7 @@ namespace PiHomeAutomation.Controllers
     /// </summary>
     public class HTSensorsApiController : ApiController
     {
-        private HTSensorDbContext db = new HTSensorDbContext();
+        private RestApi api = new RestApi();
 
         // GET: api/HTSensorsApi
         /// <summary>
@@ -26,10 +27,10 @@ namespace PiHomeAutomation.Controllers
         /// <returns>
         /// All sensor data from 30 days ago to current
         /// </returns>
-        public IQueryable<HTSensor> GetHTSensors()
+        public string GetHTSensors()
         {
             DateTime oneMonthAgo = DateTime.Now.AddDays(-30);
-            return db.HTSensors.Where(m => m.CreatedOn >= oneMonthAgo);
+            return api.getHTSensors();
         }
         /// <summary>
         /// Get All Humidity and Temperature Sensor Data. It might take long time to get all data
@@ -37,9 +38,9 @@ namespace PiHomeAutomation.Controllers
         /// <param name="SensorName">Sensor Name.</param>
         [HttpGet]
         [Route(@"api/HTSensorsList/{SensorName}/All")]
-        public IQueryable<HTSensor> HTSensorsAll(string SensorName)
+        public string HTSensorsAll(string SensorName)
         {
-            return db.HTSensors.Where(m => m.SensorName == SensorName);
+            return api.getHTSensors(SensorName);
         }
         /// <summary>
         /// Get Humidity and Temperature Sensor Data for the given date range.
@@ -49,140 +50,148 @@ namespace PiHomeAutomation.Controllers
         /// <param name="CreatedTo">To.</param>
         [HttpGet]
         [Route(@"api/HTSensorsList/{SensorName}/{CreatedFrom:regex(^\d{4}-\d{2}-\d{2})}/{CreatedTo:regex(^\d{4}-\d{2}-\d{2})}")]
-        public IQueryable<HTSensor> HTSensorsList(string SensorName, DateTime CreatedFrom, DateTime CreatedTo)
+        public string HTSensorsList(string SensorName, DateTime CreatedFrom, DateTime CreatedTo)
         {
             if(CreatedFrom == null || CreatedTo == null)
             {
-                return db.HTSensors.Where(m => m.SensorName == SensorName);
+                return api.getHTSensors(SensorName);
             }
             else
             {
                 DateTime from = CreatedFrom;
                 DateTime to = CreatedTo;
-                return db.HTSensors.Where(m => m.SensorName == SensorName
-                                            && m.CreatedOn >= from
-                                            && m.CreatedOn <= to);
+                return api.getHTSensors(from, to, SensorName);
             }
         }
-
-        ///<summary>
-        ///Get a single data corresponding ID
-        ///</summary>
-        // GET: api/HTSensorsApi/5
-        [ResponseType(typeof(HTSensor))]
-        public IHttpActionResult GetHTSensor(string id)
+        /// <summary>
+        /// Get the lastest sensor data
+        /// </summary>
+        /// <param name="SensorName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route(@"api/HTSensorsList/{SensorName}/Last")]
+        public string HTSensorsLast(string SensorName)
         {
-            HTSensor hTSensor = db.HTSensors.Find(id);
-            if (hTSensor == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(hTSensor);
+            return api.getRecentSensorData(SensorName);
         }
+        /////<summary>
+        /////Get a single data corresponding ID
+        /////</summary>
+        //// GET: api/HTSensorsApi/5
+        //[ResponseType(typeof(HTSensor))]
+        //public IHttpActionResult GetHTSensor(string id)
+        //{
+        //    HTSensor hTSensor = db.HTSensors.Find(id);
+        //    if (hTSensor == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-        ///<summary>Put the HT sensor data</summary>
-        ///<param name="hTSensor">The sensor's data(SensorName, Temp, Humi, Msg)</param>
-        ///<param name="id">The sensor ID</param>
-        ///<returns>200 Ok, others otherwise</returns>
-        // PUT: api/HTSensorsApi/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutHTSensor(string id, HTSensor hTSensor)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //    return Ok(hTSensor);
+        //}
 
-            if (id != hTSensor.SensorName)
-            {
-                return BadRequest();
-            }
-            hTSensor.CreatedOn = DateTime.Now;
-            db.Entry(hTSensor).State = EntityState.Modified;
+        /////<summary>Put the HT sensor data</summary>
+        /////<param name="hTSensor">The sensor's data(SensorName, Temp, Humi, Msg)</param>
+        /////<param name="id">The sensor ID</param>
+        /////<returns>200 Ok, others otherwise</returns>
+        //// PUT: api/HTSensorsApi/5
+        //[ResponseType(typeof(void))]
+        //public IHttpActionResult PutHTSensor(string id, HTSensor hTSensor)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!HTSensorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    if (id != hTSensor.SensorName)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    hTSensor.CreatedOn = DateTime.Now;
+        //    db.Entry(hTSensor).State = EntityState.Modified;
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
+        //    try
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!HTSensorExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-        ///<summary>Post the HT sensor data(Sensor name, Temp, Humi, Msg)</summary>
-        ///<returns>The sensor data posted</returns>
-        // POST: api/HTSensorsApi
-        [ResponseType(typeof(HTSensor))]
-        public IHttpActionResult PostHTSensor(HTSensor hTSensor)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
 
-            db.HTSensors.Add(hTSensor);
+        /////<summary>Post the HT sensor data(Sensor name, Temp, Humi, Msg)</summary>
+        /////<returns>The sensor data posted</returns>
+        //// POST: api/HTSensorsApi
+        //[ResponseType(typeof(HTSensor))]
+        //public IHttpActionResult PostHTSensor(HTSensor hTSensor)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
-                if (HTSensorExists(hTSensor.SensorName))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    db.HTSensors.Add(hTSensor);
 
-            return CreatedAtRoute("DefaultApi", new { id = hTSensor.SensorName }, hTSensor);
-        }
+        //    try
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    catch (DbUpdateException)
+        //    {
+        //        if (HTSensorExists(hTSensor.SensorName))
+        //        {
+        //            return Conflict();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-        ///<summary>Deletes the corresponding HT Sensor data</summary>
-        ///<param name="id">The sensor's ID</param>
-        ///<returns>200 Ok, 404 Not found, others otherwise</returns>
-        // DELETE: api/HTSensorsApi/5
-        [ResponseType(typeof(HTSensor))]
-        public IHttpActionResult DeleteHTSensor(string id)
-        {
-            HTSensor hTSensor = db.HTSensors.Find(id);
-            if (hTSensor == null)
-            {
-                return NotFound();
-            }
+        //    return CreatedAtRoute("DefaultApi", new { id = hTSensor.SensorName }, hTSensor);
+        //}
 
-            db.HTSensors.Remove(hTSensor);
-            db.SaveChanges();
+        /////<summary>Deletes the corresponding HT Sensor data</summary>
+        /////<param name="id">The sensor's ID</param>
+        /////<returns>200 Ok, 404 Not found, others otherwise</returns>
+        //// DELETE: api/HTSensorsApi/5
+        //[ResponseType(typeof(HTSensor))]
+        //public IHttpActionResult DeleteHTSensor(string id)
+        //{
+        //    HTSensor hTSensor = db.HTSensors.Find(id);
+        //    if (hTSensor == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return Ok(hTSensor);
-        }
+        //    db.HTSensors.Remove(hTSensor);
+        //    db.SaveChanges();
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //    return Ok(hTSensor);
+        //}
 
-        private bool HTSensorExists(string id)
-        {
-            return db.HTSensors.Count(e => e.SensorName == id) > 0;
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        db.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
+
+        //private bool HTSensorExists(string id)
+        //{
+        //    return db.HTSensors.Count(e => e.SensorName == id) > 0;
+        //}
     }
 }
